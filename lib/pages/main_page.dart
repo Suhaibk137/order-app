@@ -14,7 +14,7 @@ class MainPage extends StatefulWidget {
    super.key, 
    required this.employeeName,
    required this.employeePosition,
-   this.employeeId = "1", // Default value
+   required this.employeeId, // Changed from default value to required
  });
 
  @override
@@ -30,6 +30,7 @@ class _MainPageState extends State<MainPage> {
  @override
  void initState() {
    super.initState();
+   print('MainPage initialized with employee ID: ${widget.employeeId}');
    _fetchOrderStats();
  }
 
@@ -41,12 +42,16 @@ class _MainPageState extends State<MainPage> {
    
    try {
      // Get all orders for this employee
+     final url = 'https://order-employee.suhaib.online/get_orders.php?limit=1000&employee_id=${widget.employeeId}';
+     print('Fetching orders from: $url');
+     
      final response = await http.get(
-       Uri.parse('http://localhost:8000/get_orders.php?limit=1000&employee_id=${widget.employeeId}'),
+       Uri.parse(url),
      );
      
      if (response.statusCode == 200) {
        final data = jsonDecode(response.body);
+       print('API response data count: ${data['count']}');
        
        if (data['success']) {
          final orders = data['orders'];
@@ -79,6 +84,7 @@ class _MainPageState extends State<MainPage> {
          });
        }
      } else {
+       print('Error status code: ${response.statusCode}');
        setState(() {
          _isLoading = false;
        });

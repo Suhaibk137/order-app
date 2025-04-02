@@ -105,7 +105,7 @@ class _AddNewOrderPageState extends State<AddNewOrderPage> {
       // Create multipart request
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:8000/upload_image.php'),
+        Uri.parse('https://order-employee.suhaib.online/upload_image.php'),
       );
       
       // Add file to request
@@ -180,7 +180,7 @@ class _AddNewOrderPageState extends State<AddNewOrderPage> {
         
         // Make API request
         final response = await http.post(
-          Uri.parse('http://localhost:8000/create_order.php'),
+          Uri.parse('https://order-employee.suhaib.online/create_order.php'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(orderData),
         );

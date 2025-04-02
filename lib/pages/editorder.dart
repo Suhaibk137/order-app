@@ -57,7 +57,7 @@ class _EditOrderPageState extends State<EditOrderPage> {
       try {
         // Make API request to get order details
         final response = await http.get(
-          Uri.parse('http://localhost:8000/get_order_details.php?order_code=${_searchController.text}'),
+          Uri.parse('https://order-employee.suhaib.online/get_order_details.php?order_code=${_searchController.text}'),
         );
         
         setState(() {
@@ -177,7 +177,7 @@ class _EditOrderPageState extends State<EditOrderPage> {
       // Create multipart request
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:8000/upload_image.php'),
+        Uri.parse('https://order-employee.suhaib.online/upload_image.php'),
       );
       
       // Add file to request
@@ -251,7 +251,7 @@ class _EditOrderPageState extends State<EditOrderPage> {
         
         // Make API request to update payment
         final response = await http.post(
-          Uri.parse('http://localhost:8000/update_payment.php'),
+          Uri.parse('https://order-employee.suhaib.online/update_payment.php'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(updateData),
         );

@@ -41,7 +41,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
     });
     
     try {
-      String url = 'http://localhost:8000/get_orders.php?limit=10';
+      String url = 'https://order-employee.suhaib.online/get_orders.php?limit=10';
       
       // Add filter if not "All"
       if (_selectedFilter != 'All') {
@@ -93,7 +93,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
     
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8000/search_orders.php?search=$query'),
+        Uri.parse('https://order-employee.suhaib.online/search_orders.php?search=$query'),
       );
       
       setState(() {
@@ -125,7 +125,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
   Future<void> _fetchOrderDetails(String orderCode) async {
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8000/get_order_details.php?order_code=$orderCode'),
+        Uri.parse('https://order-employee.suhaib.online/get_order_details.php?order_code=$orderCode'),
       );
       
       if (response.statusCode == 200) {

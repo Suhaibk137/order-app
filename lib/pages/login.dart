@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
 
       try {
         // Choose the correct URL based on your environment
-        final String apiUrl = 'http://localhost:8000/login.php';
+        final String apiUrl = 'https://order-employee.suhaib.online/login.php';
         
         print("Attempting login with: ${_emailController.text}");
         print("Using API URL: $apiUrl");
@@ -50,6 +50,7 @@ class _LoginPageState extends State<LoginPage> {
             // Login successful
             final employeeName = data['employee']['name'];
             final employeePosition = data['employee']['position'];
+            final employeeId = data['employee']['id'].toString(); // Extract employee ID
             
             // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
@@ -59,13 +60,14 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
 
-            // Navigate to main page with employee data
+            // Navigate to main page with employee data including the ID
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => MainPage(
                   employeeName: employeeName,
                   employeePosition: employeePosition,
+                  employeeId: employeeId, // Pass the employee ID here
                 ),
               ),
             );
