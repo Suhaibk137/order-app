@@ -1,13 +1,13 @@
 <?php
-// Database configuration for macOS
-$host = "127.0.0.1"; // Use IP instead of "localhost"
+// Database configuration for hosted environment
+$host = "sdb-82.hosting.stackcp.net"; // Your server from screenshot
 $port = 3306;        // Default MySQL port
-$db_name = "elite-orders";
-$username = "root";  // Default MySQL username
-$password = "";      // Default MySQL password (blank)
+$db_name = "elite_orders-35303839b270"; // Your database name
+$username = "suhaib1"; // Replace with your username
+$password = "12345678@"; // Replace with your password
 
-// Create connection with port specification
-$conn = new mysqli($host, $username, $password, $db_name, $port);
+// Create connection
+$conn = new mysqli($host, $username, $password, $db_name);
 
 // Check connection
 if ($conn->connect_error) {
