@@ -6,11 +6,26 @@ error_reporting(E_ALL);
 // Include database connection
 include_once 'config.php';
 
+// Enable CORS for all domains
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Accept");
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 // Log upload attempts
 error_log("Upload attempt received: " . date('Y-m-d H:i:s'));
+error_log("Request method: " . $_SERVER['REQUEST_METHOD']);
 
 // Check if request is POST and contains a file
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Dump the entire $_FILES array to the error log for debugging
+    error_log("FILES contents: " . print_r($_FILES, true));
+    
     if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
         $error_message = isset($_FILES['image']) ? "Upload error code: " . $_FILES['image']['error'] : "No image file was sent";
         error_log("Image upload error: " . $error_message);
@@ -22,19 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    $target_dir = "uploads/";
-    
-    // Create directory if it doesn't exist
-    if (!file_exists($target_dir)) {
-        if (!mkdir($target_dir, 0777, true)) {
-            error_log("Failed to create directory: " . $target_dir);
-            echo json_encode([
-                "success" => false,
-                "message" => "Server error: Failed to create upload directory"
-            ]);
-            exit;
-        }
-    }
+    // Save to current directory (where this script is)
+    $target_dir = "./";
     
     // Check if directory is writable
     if (!is_writable($target_dir)) {
@@ -82,12 +86,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Get absolute URL for the file
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
             $domain = $_SERVER['HTTP_HOST'];
-            $file_url = $protocol . $domain . '/' . $target_file;
+            
+            // Just use the filename part for the URL
+            $file_url = $protocol . $domain . '/' . basename($target_file);
             
             echo json_encode([
                 "success" => true,
                 "message" => "File uploaded successfully",
-                "file_path" => $target_file,
+                "file_path" => basename($target_file),
                 "file_url" => $file_url
             ]);
         } else {
