@@ -139,10 +139,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.inventory_2_rounded,
-                      size: 70,
-                      color: Theme.of(context).primaryColor,
+                    child: Image.asset(
+                      'assets/icon/app_icon.png',
+                      width: 70,
+                      height: 70,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: const Column(
                       children: [
                         Text(
-                          'Elite Orders',
+                          'Orders',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 32,

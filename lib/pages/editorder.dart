@@ -146,19 +146,23 @@ class _EditOrderPageState extends State<EditOrderPage> {
     }
   }
 
-  // Pick image from gallery
+  // Pick image from gallery - updated to use base64
   Future<void> _pickImage() async {
     try {
       final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        // Optionally reduce image quality to save bandwidth
+        imageQuality: 70,
+      );
       
       if (pickedFile != null) {
         setState(() {
           _newPaymentProofImage = File(pickedFile.path);
         });
         
-        // Upload the image to server
-        await _uploadImage(_newPaymentProofImage!);
+        // Upload the image using base64 approach
+        await _uploadImageWithBase64(_newPaymentProofImage!);
       }
     } catch (e) {
       print('Error picking image: $e');
@@ -171,51 +175,90 @@ class _EditOrderPageState extends State<EditOrderPage> {
     }
   }
   
-  // Upload image to server
-  Future<void> _uploadImage(File imageFile) async {
+  // Upload image to server with base64
+  Future<void> _uploadImageWithBase64(File imageFile) async {
     try {
-      // Create multipart request
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('https://order-employee.suhaib.online/upload_image.php'),
+      setState(() {
+        _isLoading = true;
+      });
+      
+      // Read the image file as bytes
+      List<int> imageBytes = await imageFile.readAsBytes();
+      
+      // Convert bytes to base64
+      String base64Image = base64Encode(imageBytes);
+      
+      // Get file name and extension
+      String fileName = imageFile.path.split('/').last;
+      
+      // Create the request data
+      Map<String, dynamic> requestData = {
+        'image_data': base64Image,
+        'file_name': fileName,
+        'image_type': 'payment_proof'
+      };
+      
+      print('Sending base64 image upload request');
+      
+      // Send the request
+      final response = await http.post(
+        Uri.parse('https://order-employee.suhaib.online/save_base64_image.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestData),
       );
       
-      // Add file to request
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'image',
-          imageFile.path,
-        ),
-      );
+      setState(() {
+        _isLoading = false;
+      });
       
-      // Send request
-      var response = await request.send();
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
       
-      // Get response
-      var responseData = await response.stream.toBytes();
-      var responseString = String.fromCharCodes(responseData);
-      var jsonData = jsonDecode(responseString);
-      
-      if (jsonData['success']) {
-        setState(() {
-          _newPaymentProofPath = jsonData['file_path'];
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Payment proof uploaded successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+      // Handle response
+      if (response.statusCode == 200) {
+        try {
+          var jsonData = jsonDecode(response.body);
+          
+          if (jsonData['success']) {
+            setState(() {
+              _newPaymentProofPath = jsonData['file_path'];
+            });
+            
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Payment proof uploaded successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to upload image: ${jsonData['message']}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } catch (e) {
+          print('Error parsing JSON response: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error processing server response: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to upload image: ${jsonData['message']}'),
+            content: Text('Server error: ${response.statusCode}'),
             backgroundColor: Colors.red,
           ),
         );
       }
     } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       print('Error uploading image: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
